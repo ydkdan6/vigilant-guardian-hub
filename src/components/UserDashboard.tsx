@@ -37,15 +37,29 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchReports();
-  }, []);
+    // Only fetch reports when profile is available and has user_id
+    if (profile?.user_id) {
+      fetchReports();
+    } else if (profile === null) {
+      // Profile is explicitly null (not loading), stop loading
+      setLoading(false);
+    }
+  }, [profile?.user_id]); // Depend on user_id specifically
 
   const fetchReports = async () => {
+    // Guard clause to ensure user_id exists
+    if (!profile?.user_id) {
+      console.warn('Cannot fetch reports: user_id is not available');
+      setLoading(false);
+      return;
+    }
+
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('incident_reports')
         .select('*')
-        .eq('reporter_id', profile?.user_id)
+        .eq('reporter_id', profile.user_id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -76,7 +90,14 @@ const UserDashboard = () => {
   };
 
   const handleBecomeOfficer = async () => {
-    if (!profile) return;
+    if (!profile?.user_id) {
+      toast({
+        title: 'Error',
+        description: 'User profile not loaded',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     const { error } = await updateUserRole(profile.user_id, 'officer');
     if (error) {
@@ -109,6 +130,33 @@ const UserDashboard = () => {
     }
   };
 
+  // Show loading state while profile is being fetched
+  if (profile === undefined) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="h-12 w-12 mx-auto mb-4 text-primary animate-pulse" />
+          <p className="text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if profile failed to load
+  if (profile === null) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-destructive" />
+          <p className="text-lg">Failed to load user profile</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-secondary">
       {/* Header */}
@@ -122,7 +170,7 @@ const UserDashboard = () => {
                   Security Monitor
                 </h1>
                 <p className="text-primary-foreground/80">
-                  Welcome, {profile?.full_name}
+                  Welcome, {profile.full_name}
                 </p>
               </div>
             </div>
@@ -240,27 +288,27 @@ const UserDashboard = () => {
               <CardContent className="space-y-4">
                 <div>
                   <p className="text-sm font-medium">Name</p>
-                  <p className="text-sm text-muted-foreground">{profile?.full_name}</p>
+                  <p className="text-sm text-muted-foreground">{profile.full_name}</p>
                 </div>
                 <Separator />
                 <div>
                   <p className="text-sm font-medium">Email</p>
-                  <p className="text-sm text-muted-foreground">{profile?.email}</p>
+                  <p className="text-sm text-muted-foreground">{profile.email}</p>
                 </div>
                 <Separator />
                 <div>
                   <p className="text-sm font-medium">Address</p>
-                  <p className="text-sm text-muted-foreground">{profile?.address}</p>
+                  <p className="text-sm text-muted-foreground">{profile.address}</p>
                 </div>
                 <Separator />
                 <div>
                   <p className="text-sm font-medium">Phone</p>
-                  <p className="text-sm text-muted-foreground">{profile?.phone_number}</p>
+                  <p className="text-sm text-muted-foreground">{profile.phone_number}</p>
                 </div>
                 <Separator />
                 <div>
                   <p className="text-sm font-medium">Role</p>
-                  <Badge variant="secondary">{profile?.role}</Badge>
+                  <Badge variant="secondary">{profile.role}</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -277,7 +325,7 @@ const UserDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <NotificationsList userId={profile?.user_id} />
+                <NotificationsList userId={profile.user_id} />
               </CardContent>
             </Card>
           </div>
