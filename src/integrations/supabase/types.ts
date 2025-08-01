@@ -14,16 +14,174 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      distress_notifications: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string
+          id: string
+          incident_id: string
+          message: string
+          officer_id: string
+          status: Database["public"]["Enums"]["notification_status"]
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          created_at?: string
+          id?: string
+          incident_id: string
+          message: string
+          officer_id: string
+          status?: Database["public"]["Enums"]["notification_status"]
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          created_at?: string
+          id?: string
+          incident_id?: string
+          message?: string
+          officer_id?: string
+          status?: Database["public"]["Enums"]["notification_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distress_notifications_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incident_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "distress_notifications_officer_id_fkey"
+            columns: ["officer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "distress_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      incident_reports: {
+        Row: {
+          assigned_officer_id: string | null
+          created_at: string
+          description: string
+          id: string
+          incident_type: string
+          location: string
+          reporter_id: string
+          status: Database["public"]["Enums"]["incident_status"]
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          assigned_officer_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          incident_type: string
+          location: string
+          reporter_id: string
+          status?: Database["public"]["Enums"]["incident_status"]
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          assigned_officer_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          incident_type?: string
+          location?: string
+          reporter_id?: string
+          status?: Database["public"]["Enums"]["incident_status"]
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_reports_assigned_officer_id_fkey"
+            columns: ["assigned_officer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "incident_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string
+          created_at: string
+          email: string
+          full_name: string
+          gender: string
+          id: string
+          phone_number: string
+          role: Database["public"]["Enums"]["user_role"]
+          sex: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          email: string
+          full_name: string
+          gender: string
+          id?: string
+          phone_number: string
+          role?: Database["public"]["Enums"]["user_role"]
+          sex: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          gender?: string
+          id?: string
+          phone_number?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          sex?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      incident_status: "pending" | "in_progress" | "resolved" | "closed"
+      notification_status: "sent" | "acknowledged" | "resolved"
+      user_role: "user" | "officer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +308,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      incident_status: ["pending", "in_progress", "resolved", "closed"],
+      notification_status: ["sent", "acknowledged", "resolved"],
+      user_role: ["user", "officer"],
+    },
   },
 } as const

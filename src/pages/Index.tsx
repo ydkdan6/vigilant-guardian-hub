@@ -1,14 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import Dashboard from '@/components/Dashboard';
+import { Loader2 } from 'lucide-react';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen gradient-primary flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-foreground" />
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return <Dashboard />;
 };
 
 export default Index;
