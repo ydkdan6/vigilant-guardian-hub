@@ -122,7 +122,7 @@ const Auth = () => {
             <Shield className="h-12 w-12 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-bold text-primary-foreground mb-2">
-            Security Monitor
+           Imperium Industries Nigeria LTD Kaduna
           </h1>
           <p className="text-primary-foreground/80">
             Real-time surveillance and threat detection system
