@@ -289,18 +289,17 @@ const Auth = () => {
                         name="gender"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Gender</FormLabel>
+                            <FormLabel>Age Range</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select gender" />
+                                  <SelectValue placeholder="Select Age Range" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="Male">Male</SelectItem>
-                                <SelectItem value="Female">Female</SelectItem>
-                                <SelectItem value="Non-binary">Non-binary</SelectItem>
-                                <SelectItem value="Other">Other</SelectItem>
+                                <SelectItem value="Male">Below 18</SelectItem>
+                                <SelectItem value="Female">Above 18</SelectItem>
+                                <SelectItem value="Non-binary">I'm 18</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
