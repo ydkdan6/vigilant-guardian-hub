@@ -15,7 +15,6 @@ import {
   AlertTriangle, 
   Video, 
   User,
-  Settings,
   History,
   Bell
 } from 'lucide-react';
@@ -47,22 +46,26 @@ const UserDashboard = () => {
   }, [profile?.user_id]); // Depend on user_id specifically
 
   const fetchReports = async () => {
-    // Guard clause to ensure user_id exists
-    if (!profile?.user_id) {
-      console.warn('Cannot fetch reports: user_id is not available');
+    // Guard clause to ensure user_id exists and is not undefined/null
+    if (!profile?.user_id || profile.user_id === 'undefined') {
+      console.warn('Cannot fetch reports: user_id is not available or invalid');
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
+      console.log('Fetching reports for user_id:', profile.user_id); // Debug log
       const { data, error } = await supabase
         .from('incident_reports')
         .select('*')
         .eq('reporter_id', profile.user_id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       setReports(data || []);
     } catch (error) {
       console.error('Error fetching reports:', error);
@@ -89,31 +92,6 @@ const UserDashboard = () => {
     }
   };
 
-  const handleBecomeOfficer = async () => {
-    if (!profile?.user_id) {
-      toast({
-        title: 'Error',
-        description: 'User profile not loaded',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    const { error } = await updateUserRole(profile.user_id, 'officer');
-    if (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update role',
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: 'Success',
-        description: 'Role updated successfully! Please refresh the page.',
-      });
-      window.location.reload();
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -176,15 +154,6 @@ const UserDashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBecomeOfficer}
-                className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20"
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                Become Officer
-              </Button>
               <Button
                 variant="outline"
                 size="sm"
